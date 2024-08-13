@@ -1,94 +1,63 @@
 import dotenv from 'dotenv';
 import fs from 'fs';
-dotenv.config();
+import devClient from './clients/devClient';
+import { saveTweetsToFile, saveMediaLinksToFile } from './utils/fileUtils';
 
-import dev_client from './client/dev_client';
+dotenv.config({ path: 'config/.env' });
+
 const accountID = process.env.ACCOUNT_ID as string;
 
 async function findByUserID() {
   try {
-    const response = await dev_client.tweets.usersIdTweets(accountID, {
-      "max_results": 100,
-      "tweet.fields": [
-        "id",
-        "text"
-      ],
-      "media.fields": [
-        "preview_image_url",
-        "type",
-        "url"
-      ],
-      "expansions": ["attachments.media_keys"],
-      exclude: ["replies"],
-      pagination_token: ""
+    const response = await devClient.tweets.usersIdTweets(accountID, {
+      max_results: 100,
+      'tweet.fields': ['id', 'text'],
+      'media.fields': ['preview_image_url', 'type', 'url'],
+      expansions: ['attachments.media_keys'],
+      exclude: ['replies'],
+      pagination_token: ''
     });
 
     console.dir(response, { depth: null });
 
     if (response.data) {
-
-      // Map each tweet to the desired format
-      const tweets = response.data.map(tweet => ({
-        id: tweet.id,
-        text: tweet.text
-      }));
-
-      if (response.data) {
-        // Create a map of media_key to media description
-        const mediaMap = new Map();
-        if (response.includes && response.includes.media) {
-          response.includes.media.forEach(media => {
-            const description = media as { preview_image_url?: string; url?: string };
-            const mediaUrl = description.preview_image_url || description.url || "";
+      // Create a map of media_key to media URL
+      const mediaMap = new Map<string, string>();
+      if (response.includes?.media) {
+        response.includes.media.forEach((media: any) => {
+          const mediaUrl = media?.preview_image_url || media?.url || '';
+          if (media.media_key) {
             mediaMap.set(media.media_key, mediaUrl);
-          });
-        }
-  
-        // Map each tweet to the desired format
-        const tweets = response.data.map(tweet => {
-          const tweetMedia = tweet.attachments?.media_keys?.map(media_key => ({
-            media_key,
-            media_description: "", // Always set as an empty string
-            url: mediaMap.get(media_key) || "" // Retrieve the preview_image_url from the map
-          })) || [];
-  
-          return {
-            id: tweet.id,
-            text: tweet.text,
-            media: tweetMedia
-          };
+          }
         });
-  
-        // Save the formatted tweets to a JSON file
-        fs.writeFileSync('output/intern-tweets.json', JSON.stringify(tweets, null, 4), 'utf8');
-        console.log("Tweets have been saved to intern-tweets.json");
-      } else {
-        console.log("No data available in the response.");
       }
 
+      // Map each tweet to the desired format
+      const tweets = response.data.map((tweet: any) => ({
+        id: tweet.id,
+        text: tweet.text,
+        media: tweet.attachments?.media_keys?.map((media_key: string) => ({
+          media_key,
+          media_description: '', // Always set as an empty string
+          url: mediaMap.get(media_key) || '' // Retrieve the preview_image_url from the map
+        })) || []
+      }));
+
+      // Save the formatted tweets to a JSON file
+      saveTweetsToFile('output/intern-tweets.json', tweets);
+
       // Extract media URLs and save them to a links.txt file with up to 10 links per row
-      if (response.includes && response.includes.media) {
-        const mediaUrls = response.includes.media.map(media => {
-          // Cast the media object to a more specific type that includes the URL properties
-          const photoMedia = media as { url?: string; preview_image_url?: string };
-          return photoMedia.url || photoMedia.preview_image_url;
-        }).filter(url => url);
-
-        const chunkSize = 10;
-        const mediaUrlsChunks = [];
-        for (let i = 0; i < mediaUrls.length; i += chunkSize) {
-          const chunk = mediaUrls.slice(i, i + chunkSize).join(',');
-          mediaUrlsChunks.push(chunk);
-        }
-
-        fs.writeFileSync('output/links.txt', mediaUrlsChunks.join('\n'), 'utf8');
-        console.log("Media URLs have been saved to links.txt with up to 10 links per row.");
+      if (response.includes?.media) {
+        const mediaUrls = response.includes.media
+          .map((media: any) => media?.url || media?.preview_image_url)
+          .filter((url: string) => url) as string[];
+        saveMediaLinksToFile('output/links.txt', mediaUrls, 10);
       } else {
-        console.log("No media found in the response.");
+        console.log('No media found in the response.');
       }
 
     } else {
-      console.log("No data available in the response.");
+      console.log('No data available in the response.');
     }
 
   } catch (error) {
