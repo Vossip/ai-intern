@@ -1,0 +1,22 @@
+{
+  "name": "examples",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "main": "ts-node src/main.ts",
+    "update": "ts-node src/updateDescriptions.ts",
+    "modify": "ts-node modifyTweets.ts"
+  },
+  "dependencies": {
+    "axios": "^1.7.3",
+    "dotenv": "^16.4.5",
+    "ethers": "^6.13.2",
+    "fs-extra": "^11.2.0",
+    "hardhat": "^2.22.7",
+    "twitter-api-sdk": "^1.2.1"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  }
+}

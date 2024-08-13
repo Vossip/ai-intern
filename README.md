@@ -1,2 +1,0 @@
-# ai-intern
-AI Intern
