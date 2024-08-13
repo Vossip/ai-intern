@@ -3,10 +3,11 @@ import fs from 'fs';
 dotenv.config();
 
 import dev_client from './client/dev_client';
+const accountID = process.env.ACCOUNT_ID as string;
 
 async function findByUserID() {
   try {
-    const response = await dev_client.tweets.usersIdTweets("1354120919460040711", {
+    const response = await dev_client.tweets.usersIdTweets(accountID, {
       "max_results": 100,
       "tweet.fields": [
         "id",
@@ -59,7 +60,7 @@ async function findByUserID() {
         });
   
         // Save the formatted tweets to a JSON file
-        fs.writeFileSync('intern-tweets.json', JSON.stringify(tweets, null, 4), 'utf8');
+        fs.writeFileSync('output/intern-tweets.json', JSON.stringify(tweets, null, 4), 'utf8');
         console.log("Tweets have been saved to intern-tweets.json");
       } else {
         console.log("No data available in the response.");
@@ -80,7 +81,7 @@ async function findByUserID() {
           mediaUrlsChunks.push(chunk);
         }
 
-        fs.writeFileSync('links.txt', mediaUrlsChunks.join('\n'), 'utf8');
+        fs.writeFileSync('output/links.txt', mediaUrlsChunks.join('\n'), 'utf8');
         console.log("Media URLs have been saved to links.txt with up to 10 links per row.");
       } else {
         console.log("No media found in the response.");

@@ -12,12 +12,12 @@ interface Tweet {
 }
 
 // Load the descriptions from the file and filter out any empty lines
-const descriptions = fs.readFileSync('descriptions.txt', 'utf8')
+const descriptions = fs.readFileSync('output/descriptions.txt', 'utf8')
   .split('\n')
   .filter(description => description.trim() !== ''); // Filter out empty lines
 
 // Load the intern-tweets.json file
-const tweets: Tweet[] = JSON.parse(fs.readFileSync('intern-tweets.json', 'utf8'));
+const tweets: Tweet[] = JSON.parse(fs.readFileSync('output/intern-tweets.json', 'utf8'));
 
 // Iterate over each tweet
 let descriptionIndex = 0;
@@ -32,6 +32,6 @@ tweets.forEach((tweet: Tweet) => {
 });
 
 // Save the updated tweets back to the intern-tweets.json file
-fs.writeFileSync('intern-tweets.json', JSON.stringify(tweets, null, 2), 'utf8');
+fs.writeFileSync('output/intern-tweets.json', JSON.stringify(tweets, null, 2), 'utf8');
 
 console.log('Descriptions have been updated in intern-tweets.json');
