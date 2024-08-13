@@ -1,9 +1,14 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { Client, auth } from 'twitter-api-sdk';
+import { Client } from 'twitter-api-sdk';
 
-const bearerToken = process.env.BEARER_TOKEN as string;
+const bearerToken = process.env.BEARER_TOKEN;
+
+if (!bearerToken) {
+  throw new Error('BEARER_TOKEN is not defined in the environment variables.');
+}
+
 const client = new Client(bearerToken);
 
 export default client;

@@ -3,7 +3,7 @@ import fs from 'fs';
 import devClient from './clients/devClient';
 import { saveTweetsToFile, saveMediaLinksToFile } from './utils/fileUtils';
 
-dotenv.config({ path: 'config/.env' });
+dotenv.config({ path: '.env' });
 
 const accountID = process.env.ACCOUNT_ID as string;
 
@@ -25,7 +25,7 @@ async function findByUserID() {
       const mediaMap = new Map<string, string>();
       if (response.includes?.media) {
         response.includes.media.forEach((media: any) => {
-          const mediaUrl = media?.preview_image_url || media?.url || '';
+          const mediaUrl = media.preview_image_url || media.url || '';
           if (media.media_key) {
             mediaMap.set(media.media_key, mediaUrl);
           }
@@ -49,7 +49,7 @@ async function findByUserID() {
       // Extract media URLs and save them to a links.txt file with up to 10 links per row
       if (response.includes?.media) {
         const mediaUrls = response.includes.media
-          .map((media: any) => media?.url || media?.preview_image_url)
+          .map((media: any) => media.url || media.preview_image_url)
           .filter((url: string) => url) as string[];
         saveMediaLinksToFile('output/links.txt', mediaUrls, 10);
       } else {

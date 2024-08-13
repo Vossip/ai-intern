@@ -30,7 +30,7 @@ Before you begin, ensure you have the following installed:
    Copy the `template.env` file to `.env` and fill in the necessary environment variables:
 
    ```bash
-   cp config/template.env config/.env
+   cp template.env .env
    ```
 
    Then, open `.env` and replace the placeholders with your actual API keys and other necessary configurations:
